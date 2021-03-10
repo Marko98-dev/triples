@@ -124,8 +124,8 @@ def refresh():
 @app.route('/api/protected')
 @flask_praetorian.auth_required
 def protected():
-
-    return {message: 'protected endpoint (allowed user {flask_praetorian.current_user().username})'}
+    message = ''
+    return {message: f'protected endpoint (allowed user {flask_praetorian.current_user().username})'}
 
 if __name__ == '__main__':
     app.run(debug=True)
