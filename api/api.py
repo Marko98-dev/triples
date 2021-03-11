@@ -1,10 +1,16 @@
 import os
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask, flash, request, redirect, url_for, session
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 import flask_sqlalchemy
 import flask_praetorian
 import flask_cors
+from flask_cors import CORS, cross_origin
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger('HELLO WORLD')
 
 UPLOAD_FOLDER = '/home/marko/Desktop/triples/public/Uploads'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx'}
@@ -72,30 +78,21 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/api/', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('no file part')
-            return redirect(request.url)
-        file = request.files['file']
+@app.route('/api/upload', methods=['POST'])
+def fileUpload():
+    target=os.path.join(UPLOAD_FOLDER,'test_docs')
 
-        if file.filename == '':
-            flash('No selected files')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('upload_file', filename=filename))
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    if not os.path.isdir(target):
+        os.mkdir(target)
+
+    logger.info("welcome to upload`")
+    file = request.files['file'] 
+    filename = secure_filename(file.filename)
+    destination="/".join([target, filename])
+    file.save(destination)
+    session['uploadFilePath'] = destination
+    response="Whatever you wish too return"
+    return response
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -128,4 +125,7 @@ def protected():
     return {message: f'protected endpoint (allowed user {flask_praetorian.current_user().username})'}
 
 if __name__ == '__main__':
+    app.secret_key = os.urandom(24)
     app.run(debug=True)
+
+flask_cors.CORS(app, expose_headers='Authorization')

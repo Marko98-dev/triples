@@ -1,6 +1,6 @@
-import UploadFiles from './Components/UploadFiles';
 import Login from './Components/Login';
 import PrivateRoute from './Components/PrivateRoute';
+import Main from './Components/Main';
 
 import {
   BrowserRouter as Router,
@@ -21,30 +21,18 @@ function App() {
             <li>
               <Link to="/login">Login</Link>
             </li>
-            <li>
-              <Link to="/secret">Secret</Link>
-            </li>
           </ul>
         </nav>
 
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
         <Switch>
           <Route path="/login">
             <Login />
           </Route>
-          <Route path="/secret">
-            <Secret />
-          </Route>
-          <PrivateRoute path="/" component={ UploadFiles }/>
+          <PrivateRoute path="/" component={ Main }/>
         </Switch>
       </div>
     </Router>
   );
-}
-
-function Secret() {
-  return <h2>Secret</h2>;
 }
 
 export default App;
