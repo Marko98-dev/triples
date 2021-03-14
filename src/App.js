@@ -8,6 +8,8 @@ import {
   Route,
   Link
 } from "react-router-dom";
+import ShowFiles from './Components/ShowFiles';
+import Show from './Components/Show';
 
 function App() {
   return (
@@ -19,12 +21,21 @@ function App() {
               <Link to="/">Home</Link>
             </li>
             <li>
+              <Link to="/show">ShowFiles</Link>
+            </li>
+            <li>
               <Link to="/login">Login</Link>
             </li>
           </ul>
         </nav>
 
         <Switch>
+          <Route exact path="/show">
+              <ShowFiles />
+          </Route>
+          <Route path="/show/:id">
+            <Show />
+          </Route>
           <Route path="/login">
             <Login />
           </Route>

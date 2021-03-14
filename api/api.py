@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, request, redirect, url_for, session
+from flask import Flask, flash, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 import flask_sqlalchemy
@@ -10,10 +10,10 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-logger = logging.getLogger('HELLO WORLD')
+logger = logging.getLogger('TripleS App')
 
 UPLOAD_FOLDER = '/home/marko/Desktop/triples/public/Uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx'}
+ALLOWED_EXTENSIONS = { 'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx' }
 
 app = Flask(__name__)
 
@@ -84,8 +84,24 @@ with app.app_context():
 
 
 def allowed_file(filename):
+    
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def files_show(file):
+    return {
+        'id': file.id,
+        'FileName': file.FileName,
+        'Group': file.Group
+    }
+
+@app.route('/api', methods=['GET'])
+def index():
+    return jsonify([*map(files_show, Files.query.all())])
+
+@app.route('/api/<int:id>')
+def show(id):
+    return jsonify([*map(files_show, Files.query.filter_by(id=id))])
 
 @app.route('/api/upload', methods=['GET', 'POST'])
 def fileUpload():
@@ -94,10 +110,12 @@ def fileUpload():
     if not os.path.isdir(target):
         os.mkdir(target)
 
+    new_fileName = request.form.get('filename')
+
     logger.info("welcome to upload`")
     file = request.files['file'] 
     filename = secure_filename(file.filename)
-    destination="/".join([target, filename])
+    destination="/".join([target, new_fileName])
     file.save(destination)
     session['uploadFilePath'] = destination
     
@@ -107,8 +125,8 @@ def fileUpload():
     )
     db.session.add(uploadToDb)
     db.session.commit()
+    
     return 'Saved file infos'
-
 
 @app.route('/api/login', methods=['POST'])
 def login():
