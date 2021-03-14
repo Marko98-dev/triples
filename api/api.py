@@ -23,6 +23,15 @@ cors = flask_cors.CORS()
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+class Files(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    FileName = db.Column(db.Text, unique=True)
+    Group = db.Column(db.Text, unique=True)
+
+    def __init__(self, FileName, Group):
+        self.FileName = FileName
+        self.Group = Group
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Text, unique=True)
@@ -78,7 +87,7 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/api/upload', methods=['POST'])
+@app.route('/api/upload', methods=['GET', 'POST'])
 def fileUpload():
     target=os.path.join(UPLOAD_FOLDER,'test_docs')
 
@@ -91,8 +100,15 @@ def fileUpload():
     destination="/".join([target, filename])
     file.save(destination)
     session['uploadFilePath'] = destination
-    response="Whatever you wish too return"
-    return response
+    
+    uploadToDb = Files(
+        FileName = request.form.get('filename'),
+        Group = request.form.get('imageGroup')
+    )
+    db.session.add(uploadToDb)
+    db.session.commit()
+    return 'Saved file infos'
+
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -102,6 +118,7 @@ def login():
     user = guard.authenticate(username, password)
     ret = {'access_token': guard.encode_jwt_token(user)}
     return ret, 200
+
 @app.route('/api/refresh', methods=['POST'])
 def refresh():
     """

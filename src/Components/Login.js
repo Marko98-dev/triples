@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { login, useAuth, logout } from "../auth"
 
 const Login = () => {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
     const onSubmitClick = (e)=>{
       e.preventDefault()
@@ -17,20 +17,20 @@ const Login = () => {
       }).then(r => r.json())
         .then(token => {
           if (token.access_token){
-            login(token)      
+            login(token); 
           }
           else {
-            console.log("Please type in correct username/password")
+            console.log("Please type in correct username/password");
           }
         })
     }
   
     const handleUsernameChange = (e) => {
-      setUsername(e.target.value)
+      setUsername(e.target.value);
     }
   
     const handlePasswordChange = (e) => {
-      setPassword(e.target.value)
+      setPassword(e.target.value);
     }
     const [logged] = useAuth();
 return (
