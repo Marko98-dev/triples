@@ -1,11 +1,9 @@
 import React from 'react';
+import DropGroups from './DropGroups';
 
 class Main extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      imageURL: '',
-    };
 
     this.handleUploadImage = this.handleUploadImage.bind(this);
   }
@@ -15,19 +13,15 @@ class Main extends React.Component {
     const data = new FormData();
     data.append('file', this.uploadInput.files[0]);
     data.append('filename', this.fileName.value);
-    data.append('imageGroup', this.imageGroup.value);
 
     fetch('http://localhost:5000/api/upload', {
       method: 'POST',
       body: data,
       filename: this.fileName,
-      imageGroup: this.imageGroup
     }).then((response) => {
-      response.json().then((body) => {
-        this.setState({ imageURL: `http://localhost:5000/api/${body.file}` });
+        console.log(response)
       });
-    });
-  }
+}
 
   render() {
     return (
@@ -40,13 +34,10 @@ class Main extends React.Component {
         </div>
         <br />
         <div>
-        <div>
-          <input ref={(ref) => { this.imageGroup = ref; }} type="text" placeholder="Enter the name of Group" name="imageGroup"/>
-        </div>
+          <DropGroups />
         <br />
           <button>Upload</button>
         </div>
-        <img src={this.state.imageURL} alt="img" />
       </form>
     );
   }

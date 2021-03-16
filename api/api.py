@@ -7,6 +7,7 @@ import flask_praetorian
 import flask_cors
 from flask_cors import CORS, cross_origin
 import logging
+import json
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,14 +24,21 @@ cors = flask_cors.CORS()
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-class Files(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    FileName = db.Column(db.Text, unique=True)
-    Group = db.Column(db.Text, unique=True)
+class Groups(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    GroupName = db.Column(db.Text, unique = True)
 
-    def __init__(self, FileName, Group):
+
+    def __init__(self, GroupName):
+        self.GroupName = GroupName
+
+class Files(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    FileName = db.Column(db.Text, unique = True)
+    Group_id = db.Column(db.Integer, foreign_key = 'groups.id' )
+
+    def __init__(self, FileName):
         self.FileName = FileName
-        self.Group = Group
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -91,8 +99,7 @@ def allowed_file(filename):
 def files_show(file):
     return {
         'id': file.id,
-        'FileName': file.FileName,
-        'Group': file.Group
+        'FileName': file.FileName
     }
 
 @app.route('/api', methods=['GET'])
@@ -102,6 +109,14 @@ def index():
 @app.route('/api/<int:id>')
 def show(id):
     return jsonify([*map(files_show, Files.query.filter_by(id=id))])
+
+@app.route('/api/<int:id>', methods=["POST"])
+def delete(id):
+    request_data = json.loads(request.data)
+    Files.query.filter_by(id = request_data['id']).delete()
+    db.session.commit()
+
+    return { '204': 'File is Deleted' }
 
 @app.route('/api/upload', methods=['GET', 'POST'])
 def fileUpload():
@@ -121,14 +136,33 @@ def fileUpload():
     
     uploadToDb = Files(
         FileName = request.form.get('filename'),
-        Group = request.form.get('imageGroup')
     )
     db.session.add(uploadToDb)
     db.session.commit()
     
     return 'Saved file infos'
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/groups', methods = ['GET', 'POST'])
+def uploadGroup():
+    uploadToGroup = Groups(
+        GroupName = request.form.get('GroupName')
+    )
+    db.session.add(uploadToGroup)
+    db.session.commit()
+
+    return 'Saved group'
+
+def groups_show(group):
+    return {
+        'id': group.id,
+        'GroupName': group.GroupName
+    }
+
+@app.route('/api/getGroups', methods=['GET'])
+def gettinggroup():
+    return jsonify([*map(groups_show, Groups.query.all())])
+
+@app.route('/api/login', methods = ['POST'])
 def login():
     req = request.get_json(force=True)
     username = req.get('username', None)
@@ -137,7 +171,7 @@ def login():
     ret = {'access_token': guard.encode_jwt_token(user)}
     return ret, 200
 
-@app.route('/api/refresh', methods=['POST'])
+@app.route('/api/refresh', methods = ['POST'])
 def refresh():
     """
     Refreshes an existing JWT by creating a new one that is a copy of the old

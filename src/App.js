@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 import ShowFiles from './Components/ShowFiles';
 import Show from './Components/Show';
+import Group from './Components/Group';
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
           <ul>
             <li>
               <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/groups">Make Groups</Link>
             </li>
             <li>
               <Link to="/show">ShowFiles</Link>
@@ -32,6 +36,9 @@ function App() {
         <Switch>
           <Route exact path="/show">
               <ShowFiles />
+          </Route>
+          <Route exact path="/groups">
+              <Group />
           </Route>
           <Route path="/show/:id">
             <Show />

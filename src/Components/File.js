@@ -8,9 +8,8 @@ const File = ({ listOfFiles }) => {
             return (
                 <ul key={ file.id }>
                     <li>
-                        <Link to={ `/show/${file.id}` }>{ file.FileName }</Link>
+                        <Link to={`/show/${file.id}` }>{ file.FileName }</Link>
                     </li>
-                    <li>{ file.Group }</li>
                 </ul>
             )
         })}
