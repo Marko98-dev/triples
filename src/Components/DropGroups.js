@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 const DropGroups = () => {
     const { id } = useParams();
     const [group, setGroup] = useState([]);
-
+    const [selectGroup, setSelectGroup] = useState();
 
     useEffect(() => {
         fetch('/api/getGroups')
@@ -14,9 +14,15 @@ const DropGroups = () => {
     }, [id])
 
     return (
-        <select>
-            { group.map(data => <option key = { data.id } value={ data.GroupName }>{ data.GroupName }</option>) }
-        </select>
+        <div>
+            <select name="Group_id" onChange={ (e) => {
+                const selectedGroup = e.target.value;
+                setSelectGroup(selectedGroup)
+            } }>
+                { group.map(data => <option key = { data.id } value={ data.id }>{ data.GroupName }</option>) }
+            </select>
+            <p>{ selectGroup }</p>
+        </div>
     )
 }
 

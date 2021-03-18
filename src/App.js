@@ -11,6 +11,7 @@ import {
 import ShowFiles from './Components/ShowFiles';
 import Show from './Components/Show';
 import Group from './Components/Group';
+import Admin from './Components/Admin';
 
 function App() {
   return (
@@ -20,6 +21,9 @@ function App() {
           <ul>
             <li>
               <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/Admin">Admin</Link>
             </li>
             <li>
               <Link to="/groups">Make Groups</Link>
@@ -45,6 +49,9 @@ function App() {
           </Route>
           <Route path="/login">
             <Login />
+          </Route>
+          <Route path="/Admin">
+            <Admin />
           </Route>
           <PrivateRoute path="/" component={ Main }/>
         </Switch>

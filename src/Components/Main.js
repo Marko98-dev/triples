@@ -4,11 +4,14 @@ import DropGroups from './DropGroups';
 class Main extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      group_id: []
+    }
 
     this.handleUploadImage = this.handleUploadImage.bind(this);
   }
 
-  handleUploadImage(ev) {
+  handleUploadImage(ev) { 
     ev.preventDefault();
     const data = new FormData();
     data.append('file', this.uploadInput.files[0]);
@@ -17,12 +20,11 @@ class Main extends React.Component {
     fetch('http://localhost:5000/api/upload', {
       method: 'POST',
       body: data,
-      filename: this.fileName,
+      filename: this.fileName
     }).then((response) => {
         console.log(response)
       });
 }
-
   render() {
     return (
       <form onSubmit={this.handleUploadImage}>
